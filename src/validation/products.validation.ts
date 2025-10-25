@@ -13,7 +13,7 @@ export const createProductsValidation = z.object({
         try{
             new URL(img);
             return true;
-        }catch(error:any){
+        }catch (error: unknown) {
             return false;
         }
     },{message:"Invalid image!"})).optional(),
@@ -32,7 +32,7 @@ export const updateProductValidation = z.object({
         try{
             new URL(img);
             return true;
-        }catch(error:any){
+        }catch (error: unknown) {
             return false;
         }
     },{message:"Invalid image!"})).optional(),
