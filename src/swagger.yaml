@@ -1851,7 +1851,6 @@ components:
           items:
             type: string
           readOnly: true
-          type:
       example:
         id: "123"
         username: "Amir"
