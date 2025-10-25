@@ -38,8 +38,9 @@ passport.use(
     
             const user = await handleGoogle({username , email});
             done(null, user);
-        }catch(error:any){
-            done(error,false);
+        }catch (error: unknown) {
+            const err = error instanceof Error ? error : new Error(String(error));
+            done(err,false);
         }
     }
   )
