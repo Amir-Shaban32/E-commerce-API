@@ -34,7 +34,9 @@ export const getOrders = async (req:Request , res:Response)=>{
             length: orders.length,
             data: orders
         });
-    } catch (error:any) {
+    } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+ {
         res.status(500).json({
             status: `fail ${res.statusCode}`,
             message: error.message
@@ -59,7 +61,9 @@ export const getOrder = async (req:Request , res:Response)=>{
             data: foundOrder
         });        
 
-    }catch(error:any){
+    }catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+{
         res.status(500).json({
             status: `fail ${res.statusCode}`,
             message: error.message
@@ -96,7 +100,9 @@ export const checkOut = async (req:Request , res:Response) =>{
             status: `ok ${res.statusCode}`,
             data: order
         });
-    }catch(error:any){
+    }catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+{
         res.status(500).json({
             status: `fail ${res.statusCode}`,
             message: error.message
@@ -126,7 +132,9 @@ export const updateOrder = async (req:Request , res:Response) =>{
             data: foundOrder.order
         });
 
-    }catch(error:any){
+    }catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+{
         res.status(500).json({
             status: `fail ${res.statusCode}`,
             message: error.message
@@ -152,7 +160,9 @@ export const cancelOrderItem = async (req:Request , res:Response) =>{
             status: `ok ${res.statusCode}`,
             message: "Item canceled successfully"
         });    
-    }catch(error:any){
+    }catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+{
         res.status(500).json({
             status: `fail ${res.statusCode}`,
             message: error.message
@@ -184,7 +194,9 @@ export const cancelOrder = async (req:Request , res:Response) =>{
             status: `ok ${res.statusCode}`,
             message: "Order canceled successfully"
         });    
-    }catch(error:any){
+    }catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+{
         res.status(500).json({
             status: `fail ${res.statusCode}`,
             message: error.message
@@ -205,7 +217,9 @@ export const trackOrder = async (req:Request , res:Response) =>{
               status: order.delivery_status
             }))
           }); 
-    }catch(error:any){
+    }catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+{
         res.status(500).json({
             status: `fail ${res.statusCode}`,
             message: error.message
@@ -239,7 +253,9 @@ export const updateTrack = async (req:Request , res:Response)=>{
             message: `Order is ${foundOrder.delivery_status}`,
             data: foundOrder
         }); 
-    }catch(error:any){
+    }catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+{
         res.status(500).json({
             status: `fail ${res.statusCode}`,
             message: error.message
@@ -267,7 +283,9 @@ export const requestReturn = async (req:Request , res:Response)=>{
             data:returnedOrder.order
         })
 
-    }catch(error:any){
+    }catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+{
         res.status(500).json({
             status:`fail ${res.statusCode}`,
             message:error.message
@@ -299,7 +317,9 @@ export const handleReturnApproval = async(req:Request , res:Response)=>{
             data:order.order
         });
 
-    }catch(error:any){
+    }catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+{
         res.status(500).json({
             status:`fail ${res.statusCode}`,
             message:error.message
@@ -330,7 +350,9 @@ export const completeReturn = async(req:Request , res:Response)=>{
             order:order.order
         });
 
-    }catch(error:any){
+    }catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+{
         res.status(500).json({
             status:`fail ${res.statusCode}`,
             message:error.message

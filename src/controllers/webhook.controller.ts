@@ -29,11 +29,12 @@ export const stripeWebhook = async (req: Request, res: Response) => {
       message:processingResult.message
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
     return res.status(500).json({
       status: `fail ${res.statusCode}`,
       received:false,
-      message: error.message
+      message: err.message
     });
   }
 };

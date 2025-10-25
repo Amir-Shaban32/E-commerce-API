@@ -17,10 +17,11 @@ export const getUsers = async (req:Request , res:Response)=>{
             length: users.length,
             data: users
         });
-    } catch (error:any) {
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
+            status: "fail",
+            message: err.message
         })
     };
 }
@@ -41,12 +42,13 @@ export const getUser = async (req:Request , res:Response)=>{
             data: user
         });        
 
-    }catch(error:any){
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })          
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 }
 
 // sing in user
@@ -82,12 +84,13 @@ export const updateUser = async (req:Request , res:Response) =>{
             data: foundUser.user
         });
 
-    }catch(error:any){
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })           
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };
 
 //delete existing user
@@ -115,10 +118,11 @@ export const deleteUser = async (req:Request , res:Response) =>{
             message: deletedUser.message
         });
 
-    }catch(error:any){
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })           
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };

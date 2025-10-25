@@ -19,10 +19,11 @@ export const getCategories = async (req:Request , res:Response)=>{
             length: categories.length,
             data: categories
         });
-    } catch (error:any) {
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
+            status: "fail",
+            message: err.message
         })
     };
 }
@@ -41,12 +42,13 @@ export const getCategory = async (req:Request , res:Response)=>{
             data: category
         });        
 
-    }catch(error:any){
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })          
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 }
 
 // add Category
@@ -73,12 +75,13 @@ export const addCategory = async (req:Request , res:Response) =>{
             message:category.message,
             data: category
         });
-    }catch(error:any){
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })          
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 }
 
 // update existing Category
@@ -106,12 +109,13 @@ export const updateCategory = async (req:Request , res:Response) =>{
             data: foundCategory.category
         });
 
-    }catch(error:any){
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })           
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };
 
 //delete existing Category
@@ -131,10 +135,11 @@ export const deleteCategory = async (req:Request , res:Response) =>{
             message: "Category deleted successfully"
         });
 
-    }catch(error:any){
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })           
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };

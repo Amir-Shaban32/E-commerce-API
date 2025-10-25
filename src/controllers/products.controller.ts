@@ -19,10 +19,11 @@ export const getProducts = async (req:Request , res:Response)=>{
             length: products.length,
             data: products
         });
-    } catch (error:any) {
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
+            status: "fail",
+            message: err.message
         })
     };
 }
@@ -41,17 +42,17 @@ export const getProduct = async (req:Request , res:Response)=>{
             data: product
         });        
 
-    }catch(error:any){
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })          
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 }
 
 // add product
 export const addProduct = async (req:Request , res:Response) =>{
-
     try{
         const newProduct = req.body;
         if(!newProduct) return res.status(400).json({message:"Missing Product's details"});
@@ -73,12 +74,13 @@ export const addProduct = async (req:Request , res:Response) =>{
             message:product.message,
             data: product
         });
-    }catch(error:any){
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })          
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 }
 
 // update existing product
@@ -112,18 +114,18 @@ export const updateProduct = async (req:Request , res:Response) =>{
             data: foundProduct.product
         });
 
-    }catch(error:any){
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })           
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };
 
 //delete existing product
 export const deleteProduct = async (req:Request , res:Response) =>{
     try{
-
         const id = req.params.id;
         if(!id) return res.status(400).json({message:"Missing Product Id!"});
 
@@ -138,10 +140,11 @@ export const deleteProduct = async (req:Request , res:Response) =>{
             message: "Product deleted successfully"
         });
 
-    }catch(error:any){
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })           
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };

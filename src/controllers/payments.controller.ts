@@ -30,12 +30,13 @@ export const getPayment = async (req: Request, res: Response) => {
       status: `ok ${res.statusCode}`,
       payment,
     });
-  } catch (error: any) {
-    return res.status(500).json({
-      status: `fail ${res.statusCode}`,
-      message: error.message,
-    });
-  }
+  } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        res.status(500).json({
+            status: "fail",
+            message: err.message
+        })
+    };
 };
 
 export const getPaymentByOrderId = async (req: Request, res: Response) => {
@@ -59,12 +60,13 @@ export const getPaymentByOrderId = async (req: Request, res: Response) => {
       status: `ok ${res.statusCode}`,
       payment,
     });
-  } catch (error: any) {
-    return res.status(500).json({
-      status: `fail ${res.statusCode}`,
-      message: error.message,
-    });
-  }
+  } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        res.status(500).json({
+            status: "fail",
+            message: err.message
+        })
+    };
 };
 
 export const createPayment = async (req: Request, res: Response) => {
@@ -111,10 +113,11 @@ export const createPayment = async (req: Request, res: Response) => {
       paymentIntentId: paymentIntent.id,
       clientSecret: paymentIntent.client_secret,
     });
-  } catch (error: any) {
-    return res.status(500).json({
-      status: `fail ${res.statusCode}`,
-      message: error.message,
-    });
-  }
+  } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        res.status(500).json({
+            status: "fail",
+            message: err.message
+        })
+    };
 };

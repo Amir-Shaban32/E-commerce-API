@@ -14,12 +14,13 @@ export const getCart = async (req:Request , res:Response)=>{
             data: cart
         });        
 
-    }catch(error:any){
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })          
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 }
 
 // update existing cart
@@ -41,12 +42,13 @@ export const updateItem = async (req:Request , res:Response) =>{
             data: foundCart.cart
         });
 
-    }catch(error:any){
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })           
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };
 
 export const addItem = async (req:Request , res:Response)=>{
@@ -64,12 +66,13 @@ export const addItem = async (req:Request , res:Response)=>{
             message: foundCart.message,
             data: foundCart.cart
           });
-    }catch(error:any){
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        });             
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };
 
 export const deleteItem = async (req:Request , res:Response) =>{
@@ -87,13 +90,13 @@ export const deleteItem = async (req:Request , res:Response) =>{
             message: foundCart.message,
             data: foundCart.cart
         });    
-    }catch(error:any){
-        console.log("Error:",error);
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        });   
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };
 
 export const clearCart = async (req:Request , res:Response)=>{
@@ -108,10 +111,11 @@ export const clearCart = async (req:Request , res:Response)=>{
             message: foundCart.message
         });        
 
-    }catch(error:any){
+    } catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })          
-    }   
+            status: "fail",
+            message: err.message
+        })
+    };
 };
