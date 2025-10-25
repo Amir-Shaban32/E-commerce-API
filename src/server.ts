@@ -9,8 +9,9 @@ const startServer = async () =>{
     try{
         await connectDB();
         app.listen(PORT,()=> console.log(`Server running on http://localhost:${PORT}/`))
-    }catch(error:any){
-        console.error("Failed to connect to DB", error);
+    }catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        console.error("Failed to connect to DB", err);
         process.exit(1);
     }
 };
