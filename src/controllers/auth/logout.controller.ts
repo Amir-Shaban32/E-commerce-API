@@ -19,10 +19,11 @@ export const handleLogout = async (req:Request , res:Response) =>{
         res.clearCookie('token', { httpOnly: true, sameSite: "none", secure: true });
         res.status(200).json({ status: "ok", message: "Logged out" });
         
-    }catch(error:any){
-        res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })    
-    }
+    } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    res.status(500).json({
+      status: "fail",
+      message: err.message
+    });
+  }
 }

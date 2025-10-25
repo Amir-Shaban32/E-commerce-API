@@ -1,7 +1,7 @@
 import { Request , Response } from "express";
 import userModel from "../../models/users.model";
 import { generateTokens } from "../../utils/jwt";
-import { comparePassword , hashePassword } from "../../utils/password";
+import {hashePassword } from "../../utils/password";
 
 interface GoogleUser{
   username:string,
@@ -63,10 +63,11 @@ export const handleCallback = async(req:Request , res:Response) =>{
             status: `ok ${res.statusCode}`,
             accessToken:accessToken
         });
-    }catch (error: any) {
+    }catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message,
+            status: "fail",
+            message: err.message,
         })
     }
 };

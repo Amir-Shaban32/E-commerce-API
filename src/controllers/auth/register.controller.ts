@@ -58,20 +58,22 @@ export const handleRegister = async <T extends Document & IRegister>
         data: user[0]
       });
       
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error instanceof Error ? error : new Error(String(error));
       await session.abortTransaction();
       res.status(500).json({
         status: `fail ${res.statusCode}`,
-        message: error.message
+        message: err.message
       });
     } finally {
       await session.endSession();
     }
     
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
     res.status(500).json({
-      status: `fail ${res.statusCode}`,
-      message: error.message
+      status: "fail",
+      message: err.message
     });
   }
 };
