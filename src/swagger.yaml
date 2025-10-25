@@ -1,0 +1,2212 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: E-commerce API
+  description: Documentation of E-commerce API routes
+
+servers:
+  - url: http://localhost:3000/
+
+paths:
+  /register:
+    post:
+      summary: Sign up user
+      description: >
+        Register a new user and automatically create an empty cart within a single transaction. 
+        After successful registration, a JWT is generated and sent to the browser as an HTTP-only
+        cookie to authenticate the user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersCreate'
+      tags:
+        - Users
+      responses:
+        "201":
+          description: User created Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  data:
+                    $ref: '#/components/schemas/Users'
+        "400":
+          description: ValidationError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        "409":
+          description: User already exists
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /login:
+    post:
+      summary: SignIn user
+      description: Authenticate a user using JWT during login and send the token as an HTTP-only cookie to the browser.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersCreate'
+      tags:
+        - Users
+      responses:
+        "200":
+          description: Logged in Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  data:
+                    $ref: '#/components/schemas/Users'
+                  accessToken:
+                    type: string
+                    description: New JWT access token
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "401":
+          description: Unauthorized
+        "404":
+          description: User not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /logout:
+    post:
+      summary: Logout user
+      description: Log out the user by clearing the JWT cookie from the browser.
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: User logged out Successfully
+        "204":
+          description: No content
+        "404":
+          description: User not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /refresh:
+    post:
+      summary: get new refresh token
+      description: Generate and send a new access token using a valid refresh token stored in the HTTP-only cookie.
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully generated new refreshTokens
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  data:
+                    $ref: '#/components/schemas/Users'
+                  accessToken:
+                    type: string
+                    description: New JWT access token
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/google/login:
+    get:
+      summary: Sign in with Google
+      description: >
+        Redirects the user to Google for authentication using the OAuth 2.0 protocol.
+        This endpoint initiates the Google login flow.  
+        After successful authentication, Google redirects to `/auth/google/callback`.
+      tags:
+        - OAuth Google
+      responses:
+        "302":
+          description: Redirects the user to Google's login page.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/google/callback:
+    get:
+      summary: Google OAuth callback
+      description: >
+        Google redirects here after successful authentication.  
+        The server exchanges the authorization code for user profile data.
+      tags:
+        - OAuth Google
+      responses:
+        "200":
+          description: Logged in Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  data:
+                    $ref: '#/components/schemas/Users'
+                  accessToken:
+                    type: string
+                    description: New JWT access token
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users:
+    get:
+      summary: Get all users
+      description: Returns all users. Only accessible by Admins.
+      parameters:
+        - name: filter
+          in: query
+          description: Filters users
+          schema:
+            type: object
+        - name: limit
+          in: query
+          description: Limits Users
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Specifies the page number
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          description: Sort order of the results. Use 1 for ascending or -1 for descending.
+          schema:
+            type: integer
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully returned all users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  length:
+                    type: integer
+                  data:
+                    # CORRECTION: Changed from single Users object to an array of Users objects
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Users'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/{id}:
+    get:
+      summary: Get Specific User with his id
+      description: Retrieve a specific user's details using their unique ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the user
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully returned single user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  data:
+                    $ref: '#/components/schemas/Users'
+        "400":
+          description: Missing user Id
+        "403":
+          description: Forbidden
+        "404":
+          description: User not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete User's account
+      description: Delete a user's account and their cart in a single transaction.
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of User
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: User deleted Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+        "400":
+          description: User not found
+        "403":
+          description: Forbidden
+        "404":
+          description: Failed to delete User
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/update:
+    patch:
+      summary: Update User's data
+      description: Update a user's account information securely using their ID.
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: User updated Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Users'
+        "400":
+          description: Validation Failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        "404":
+          description: User not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/products:
+    get:
+      summary: Get all products
+      description: Retrieve a list of all available products.
+      parameters:
+        - name: filter
+          in: query
+          description: Filters products
+          schema:
+            type: object
+        - name: limit
+          in: query
+          description: Limits Products
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Specifies the page number
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          description: Sort order of the results. Use 1 for ascending or -1 for descending.
+          schema:
+            type: integer
+      tags:
+        - Products
+      responses:
+        "200":
+          description: Successfully returned all products
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  length:
+                    type: integer
+                  data:
+                    type: array # Corrected to array of Products
+                    items:
+                      $ref: '#/components/schemas/Products'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Add new product/s. Only Admins
+      description: Add one or more new products. Accessible only to admin users.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductsAdminOperations'
+      tags:
+        - Products
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Product added Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Products'
+        "400":
+          description: Bad request (Missing Product's details)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        "403":
+          description: Forbidden
+        "409":
+          description: Product already exists
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/products/{id}:
+    get:
+      summary: Get Specific Product with its id
+      description: Retrieve details of a specific product using its unique ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product
+      tags:
+        - Products
+      responses:
+        "200":
+          description: Successfully returned single product
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  data:
+                    $ref: '#/components/schemas/Products'
+        "400":
+          description: Missing product Id
+        "404":
+          description: Product not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update Specific Product with its id
+      description: Update the details of a specific product using its unique ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductsAdminOperations'
+      tags:
+        - Products
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  data:
+                    $ref: '#/components/schemas/Products'
+        "400":
+          description: Missing product Id or ValidationError
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        "403":
+          description: Forbidden
+        "404":
+          description: Product not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Product
+      description: Delete a specific product using its unique ID. Only accessible to admin users.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the product
+      tags:
+        - Products
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Product deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+        "400":
+          description: Missing product Id
+        "403":
+          description: Forbidden
+        "404":
+          description: Product not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/categories:
+    get:
+      summary: Get all categories
+      description: Retrieve a list of all product categories.
+      parameters:
+        - name: filter
+          in: query
+          description: Filters categories
+          schema:
+            type: object
+        - name: limit
+          in: query
+          description: Limits categories
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Specifies the page number
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          description: Sort order of the results. Use 1 for ascending or -1 for descending.
+          schema:
+            type: integer
+      tags:
+        - Categories
+      responses:
+        "200":
+          description: Successfully returned all categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  length:
+                    type: integer
+                  data:
+                    type: array # Corrected to array of Categories
+                    items:
+                      $ref: '#/components/schemas/Categories'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Add new category/ies. Only Admins
+      description: Add one or more new categories. Accessible only to admin users. 
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoriesAdminOperations'
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Category added Successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Categories'
+        "400":
+          description: Bad request (Missing Category details)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        "403":
+          description: Forbidden
+        "409":
+          description: Category already exists
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/categories/{id}:
+    get:
+      summary: get Specific category
+      description: Retrieve details of a specific category using its unique ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the category
+      tags:
+        - Categories
+      responses:
+        "200":
+          description: Successfully returned single category
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  data:
+                    $ref: '#/components/schemas/Categories'
+        "400":
+          description: Missing category Id
+        "404":
+          description: category not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update Specific category
+      description: Update the details of a specific category using its unique ID.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoriesAdminOperations'
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  data:
+                    $ref: '#/components/schemas/Categories'
+        "400":
+          description: Bad request (Missing Category details)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        "403":
+          description: Forbidden
+        "404":
+          description: Category not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete Category
+      description: Delete a specific category using its unique ID. Only accessible to admin users.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID of the Category
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Category deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+        "400":
+          description: Missing category Id
+        "403":
+          description: Forbidden
+        "404":
+          description: Category not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/cart:
+    get:
+      summary: Get User cart
+      description: Retrieve the current user's cart with all added products and their details.
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully returned User's cart
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  data:
+                    $ref: '#/components/schemas/Cart'
+        "403":
+          description: Forbidden
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update User's cart
+      description: Update the contents of the user's cart, including product quantities or items.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItem'
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully updated User's cart
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Cart'
+        "400":
+          description: Bad request (Missing or Invalid data)
+        "403":
+          description: Forbidden
+        "404":
+          description: Cart or product not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Clear Cart completely
+      description: Remove all items from the user's cart while keeping the cart itself.
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Cart cleared successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+        "403":
+          description: Forbidden
+        "404":
+          description: Cart or product not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/cart/add:
+    post:
+      summary: Add item to cart
+      description: Add a new product to the user's cart or increase its quantity if it already exists.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItem'
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Item added to cart successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/CartItem'
+        "400":
+          description: Missing Product Id
+        "403":
+          description: Forbidden
+        "404":
+          description: Cart not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/cart/{product_id}:
+    delete:
+      summary: delete Item from cart
+      description: Remove a specific product from the user's cart using its product ID.
+      parameters:
+        - in: path
+          name: product_id
+          required: true
+          schema:
+            type: string
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Item deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/CartItem'
+        "400":
+          description: Missing Product Id
+        "403":
+          description: Forbidden
+        "404":
+          description: Cart not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders:
+    get:
+      summary: Returns all orders. Only accessible by Admins.
+      description: Retrieve a list of all orders placed by users. Accessible only to admin users.
+      parameters:
+        - name: filter
+          in: query
+          description: Filters orders
+          schema:
+            type: object
+        - name: limit
+          in: query
+          description: Limits orders
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Specifies the page number
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          description: Sort order of the results. Use 1 for ascending or -1 for descending.
+          schema:
+            type: integer
+        - name: completed
+          in: query
+          description: get completed orders
+          schema:
+            type: boolean
+        - name: cancelled
+          in: query
+          description: get cancelled orders
+          schema:
+            type: boolean
+        - name: date_from
+          in: query
+          description: The start date and time to filter results from.
+          schema:
+            type: string
+            format: date-time
+        - name: date_till
+          in: query
+          description: The end date and time to filter results until.
+          schema:
+            type: string
+            format: date-time
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully returned all Orders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  length:
+                    type: integer
+                  data:
+                    type: array # Corrected to array of Orders
+                    items:
+                      $ref: '#/components/schemas/Orders'
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders/{orderId}:
+    get:
+      summary: Get User's order
+      description: Retrieve all orders made by the currently authenticated user.
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully returned User's order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  data:
+                    $ref: '#/components/schemas/Orders'
+        "403":
+          description: Forbidden
+        "400":
+          description: Missing Order Id
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update User order
+      description: Update the details or status of a specific order made by the user.
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Orders'
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully updated User's order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Orders'
+        "403":
+          description: Forbidden
+        "400":
+          description: Bad request (Missing Order details)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        "404":
+          description: Order not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders/{orderId}/status:
+    patch:
+      description: Update User's order shipping status
+      description: Update the status of a specific user order, such as processing, shipped, or delivered.
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Orders'
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully updated User's order status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Orders'
+        "403":
+          description: Forbidden
+        "400":
+          description: Bad request (Missing Order details)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        "404":
+          description: Order not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders/{orderId}/cancel:
+    patch:
+      summary: Cancel User's order
+      description: > 
+        Cancel a specific order made by the user if it hasn’t been processed or shipped yet. 
+        Orders cannot be canceled or returned after 10 days from the purchase date.
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cancellation_reason:
+                  type: string
+                  description: Optional reason for cancelling the order
+                  example: "Customer changed their mind"
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully cancelled User's order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Orders'
+        "403":
+          description: Forbidden
+        "400":
+          description: Missing order id
+        "404":
+          description: Order not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders/{orderId}/return:
+    post:
+      summary: User requests to return his/her order
+      description: User requests to return his/her order (still wants Admin approval)
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Orders'
+              nullable: true
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully returned User's order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Orders'
+        "403":
+          description: Forbidden
+        "400":
+          description: Missing order id
+        "404":
+          description: Order not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders/{orderId}/return/decision:
+    post:
+      summary: Admin decide approve or reject return request
+      description: Approve Or reject return request By Admin
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rejection_reason:
+                  type: string
+                  description: Optional reason for rejecting the order
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Return request approved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Orders'
+        "403":
+          description: Forbidden
+        "400":
+          description: Bad request (Missing order id or no return request)
+        "404":
+          description: Order not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders/{orderId}/return/complete:
+    post:
+      summary: Admin completes return process (after refund if paid)
+      description: complete return request By Admin (approval first required)
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Return completed and refund processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Orders'
+        "403":
+          description: Forbidden
+        "400":
+          description: Bad request (Missing order id or return request must be approved first)
+        "404":
+          description: Order not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders/{orderId}/items/{item_id}/cancel:
+    patch:
+      summary: cancel one item in order
+      description: >
+        Allow the user to cancel a specific item within an order, 
+        provided it hasn’t been processed or shipped and is within 10 days of purchase.
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: item_id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Orders'
+              nullable: true
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Item canceled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  message:
+                    type: string
+        "400":
+          description: Missing Product Id
+        "404":
+          description: Order not found
+        "403":
+          description: Forbidden
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders/status:
+    get:
+      summary: User track his/her order shipping status 
+      description: Retrieve the current status and details of a specific order for the authenticated user.
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully retrieved order statuses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  data:
+                    type: array
+                    description: List of orders with their delivery statuses
+                    items:
+                      type: object
+                      properties:
+                        orderId:
+                          type: string
+                        status:
+                          type: string
+        "403":
+          description: Forbidden
+        "404":
+          description: Order not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders/checkout:
+    post:
+      summary: User checkout his/her order
+      description: Complete the checkout process for the user's cart and create a new order.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Orders'
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully checkoutted order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  data:
+                    $ref: '#/components/schemas/Orders'
+        "404":
+          description: User not found or empty cart
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/webhook:
+    post:
+      summary: Stripe Webhook
+      description: >
+        This endpoint receives events directly from Stripe.  
+        It uses a **raw body parser** (`express.raw`) because Stripe requires the
+        exact request body to verify the event signature.  
+        The endpoint should not be called manually — it is for **Stripe servers only**.
+      tags:
+      - Payments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Stripe event payload
+              example:
+                id: "evt_1P3kDgK2vZqTQZf9jB5kR1Oa"
+                object: "event"
+                api_version: "2023-10-16"
+                type: "payment_intent.succeeded"
+                data:
+                  object:
+                    id: "pi_3P3kCJK2vZqTQZf9jG5u5aX2"
+                    object: "payment_intent"
+                    amount: 2000
+                    currency: "usd"
+                    status: "succeeded"
+      responses:
+        "200":
+          description: Webhook received and processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  received:
+                    type: boolean
+                  message:
+                    type: string
+        "400":
+          description: Invalid payload or signature verification failed
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  error: "Invalid signature"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  received:
+                    type: boolean
+                  message:
+                    type: string
+
+  /api/payments/create-intent:
+    post:
+      summary: Create Payment Intent
+      description: >
+        Creates a new **Stripe payment intent** for the specified order.  
+        This endpoint is used to initiate a payment process by generating a
+        `clientSecret` that the client can use to complete the payment on the frontend.
+      tags:
+        - Payments
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - order_id
+                - amount
+                - currency
+              properties:
+                order_id:
+                  type: string
+                  format: objectid
+                amount:
+                  type: number
+                  description: Total amount to be charged (in the smallest currency unit, e.g., cents)
+                currency:
+                  type: string
+                  description: Currency code following ISO 4217 standard
+      responses:
+        "200":
+          description: Payment intent created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  paymentIntentId:
+                    type: string
+                    description: Unique identifier of the Stripe payment intent
+                  clientSecret:
+                    type: string
+                    description: Secret key used by the client to complete the payment
+        "400":
+          description: Missing or invalid request data
+        "403":
+          description: Unauthorized or forbidden access
+        "404":
+          description: Order not found
+        "409":
+          description: Payment already exists or is completed for this order
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/payments/{id}:
+    get:
+      summary: User get his/her payments
+      description: User get his/her payments by payment id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      tags:
+        - Payments
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully retrieved user's payments
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  payment:
+                    $ref: '#/components/schemas/Payments'
+        "400":
+          description: Bad request
+        "403":
+          description: Forbidden
+        "404":
+          description: Order not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/payments/order/{order_id}:
+    get:
+      summary: User get his/her payments by order_id 
+      description: User get his/her payments by order_id if (payment id is unavailable)
+      parameters:
+        - in: path
+          name: order_id
+          required: true
+          schema:
+            type: string
+      tags:
+        - Payments
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully retrieved user's payments
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok 200"
+                  payment:
+                    $ref: '#/components/schemas/Payments'
+        "400":
+          description: Bad request
+        "403":
+          description: Forbidden
+        "404":
+          description: Order not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin:
+    get:
+      summary: AdminJS Dashboard
+      description: >
+        Serves the **AdminJS** (Admin Panel) interface for managing application data.  
+        This route provides a web-based dashboard for administrators to view and manage users, products, orders, and other entities.
+
+        > ⚠️ Access to this route is typically restricted to authorized admin users.
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: AdminJS dashboard loaded successfully
+          content:
+            text/html:
+              schema:
+                type: string
+                example: "<!DOCTYPE html><html><head><title>AdminJS</title></head><body>...</body></html>"
+        "401":
+          description: Unauthorized access (admin authentication required)
+        "403":
+          description: Forbidden (insufficient privileges)
+        "500":
+          description: Internal Server Error
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Users:
+      type: object
+      description: User's account information
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the user
+          readOnly: true
+        username:
+          type: string
+          description: Unique username chosen by the user
+        email:
+          type: string
+          description: User's email address
+        phone_number:
+          type: string
+          description: User's phone number
+        shipping_address:
+          type: array
+          description: List of shipping addresses associated with the user
+          items:
+            type: object
+            properties:
+              country:
+                type: string
+                description: Country of the shipping address
+              city:
+                type: string
+                description: City of the shipping address
+              street:
+                type: string
+                description: Street name and number
+              zip:
+                type: string
+                description: Postal or ZIP code
+        payment_method:
+          type: array
+          description: List of payment methods associated with the user
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: [cash, card, wallet, paypal, bank_transfer]
+                description: Payment method type
+              last_4:
+                type: string
+                nullable: true
+                description: Last four digits of the payment card (if applicable)
+              provider:
+                type: string
+                nullable: true
+                description: Card or wallet provider name
+        last_login:
+          type: string
+          format: date-time
+          description: Timestamp of the user's last login
+        password:
+          type: string
+          format: password
+          writeOnly: true
+          description: User password (write-only, not returned in responses)
+        role:
+          type: number
+          description: Numeric representation of the user's role (e.g., 0=user, 1=admin)
+        refreshTokens:
+          type: array
+          description: Refresh tokens associated with the user — not exposed in public APIs
+          items:
+            type: string
+          readOnly: true
+          type:
+      example:
+        id: "123"
+        username: "Amir"
+        email: "amir@example.com"
+        phone_number: "01578439804"
+        shipping_address:
+          - country: "Syria"
+            city: "Damascus"
+            street: "Via Recta"
+            zip: "65438"
+        payment_method:
+          - type: "card"
+            last_4: "6789"
+            provider: "Visa"
+          - type: "cash"
+        last_login: "2025-10-17T14:30:00Z"
+
+    UsersCreate:
+      type: object
+      description: Schema for creating a new user account
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: Unique username for the new user
+        email:
+          type: string
+          description: Optional email address
+        phone_number:
+          type: string
+          description: Optional phone number
+        shipping_address:
+          type: array
+          description: Optional list of shipping addresses to associate with the user
+          items:
+            type: object
+            properties:
+              country:
+                type: string
+              city:
+                type: string
+              street:
+                type: string
+              zip:
+                type: string
+        password:
+          type: string
+          format: password
+          writeOnly: true
+          description: User password (write-only, not returned in responses)
+      example:
+        username: "Amir"
+        password: "DAejk%67"
+        shipping_address:
+          - country: "Syria"
+            city: "Damascus"
+            street: "Via Recta"
+            zip: "65438"
+
+    Products:
+      type: object
+      description: Public product schema
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the product
+          readOnly: true
+        name:
+          type: string
+          description: Product name
+        description:
+          type: string
+          description: Detailed description of the product
+        price:
+          type: integer
+          description: Product price in the given currency
+        currency:
+          type: string
+          description: Currency code (e.g., USD, EUR)
+        brand:
+          type: string
+          description: Brand or manufacturer of the product
+        images:
+          type: array
+          description: List of product image URLs
+          items:
+            type: string
+        stock_quantity:
+          type: integer
+          description: Quantity of the product in stock
+        ratings:
+          type: number
+          format: float
+          description: Average product rating (0–5)
+
+    ProductsAdminOperations:
+      type: object
+      description: Schema for product creation or management (admin use)
+      required:
+        - name
+        - description
+        - category_id
+        - price
+        - currency
+        - brand
+        - stock_quantity
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category_id:
+          type: string
+          format: objectid
+          description: Reference to the category document in the "categories" collection
+        price:
+          type: integer
+        currency:
+          type: string
+        brand:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        stock_quantity:
+          type: integer
+        ratings:
+          type: number
+          format: float
+
+    Categories:
+      type: object
+      description: Public category schema
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the category
+        name:
+          type: string
+          description: Category name
+
+    CategoriesAdminOperations:
+      type: object
+      description: Category creation schema (admin use)
+      required:
+        - name
+        - parent_category_id
+      properties:
+        name:
+          type: string
+        parent_category_id:
+          type: string
+          format: objectid
+          description: Reference to its parent category in the collection
+
+    CartItem:
+      type: object
+      description: Single item in a user's cart
+      properties:
+        product_id:
+          type: string
+          format: objectid
+        quantity:
+          type: integer
+          minimum: 1
+
+    Cart:
+      type: object
+      description: User's shopping cart schema
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+          format: objectid
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+
+    OrderItem:
+      type: object
+      description: Individual item within an order
+      properties:
+        product_id:
+          type: string
+          format: objectid
+        quantity:
+          type: integer
+          minimum: 1
+        price_at_purchase:
+          type: number
+          minimum: 0
+        status:
+          type: string
+          enum: [active, canceled]
+        canceled_at:
+          type: string
+          format: date-time
+        cancellation_reason:
+          type: string
+
+    Orders:
+      type: object
+      description: Complete order schema representing user purchases
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+          format: objectid
+        order_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        shipping_address:
+          type: array
+          items:
+            type: object
+            properties:
+              country:
+                type: string
+              city:
+                type: string
+              street:
+                type: string
+              zip:
+                type: string
+        payment_status:
+          type: string
+          enum: [pending, paid, failed, refunded, partially_refunded, canceled]
+        delivery_status:
+          type: string
+          enum: [pending, in_transit, out_for_delivery, delivered, failed, canceled]
+        delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+        phone_number:
+          type: string
+        total:
+          type: number
+        payment_intent_id:
+          type: string
+          nullable: true
+        refund_id:
+          type: string
+          nullable: true
+        canceled_at:
+          type: string
+          format: date-time
+          nullable: true
+        cancellation_reason:
+          type: string
+          nullable: true
+        canceled_by:
+          type: string
+          enum: [customer, admin, system]
+          nullable: true
+        return_requested_at:
+          type: string
+          format: date-time
+          nullable: true
+        return_reason:
+          type: string
+          nullable: true
+        return_status:
+          type: string
+          enum: [none, requested, approved, rejected, completed]
+          default: none
+        refund_amount:
+          type: number
+          default: 0
+        refunded_at:
+          type: string
+          format: date-time
+          nullable: true
+        complete_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    Payments:
+      type: object
+      description: Schema for tracking payments associated with orders
+      required:
+        - order_id
+        - amount
+        - currency
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+          format: objectid
+        order_id:
+          type: string
+          format: objectid
+        method:
+          type: string
+          enum: [card, paypal, cash_on_delivery, wallet]
+        payment_intent_id:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        status:
+          type: string
+          enum: [pending, succeeded, failed, refunded]
+        failure_reason:
+          type: string
+          nullable: true
+      example:
+        id: "670f3cbadb4a2b0c15e4e9d1"
+        user_id: "66f5b1a2d39d8b7d4c82fae1"
+        order_id: "66f5b1f4d39d8b7d4c82faf2"
+        method: "card"
+        payment_intent_id: "pi_3SKlhpHaOEsTADST1yDfFMIR"
+        amount: 249.99
+        currency: "usd"
+        status: "succeeded"
+        failure_reason: null
+
+    ValidationError:
+      type: object
+      description: Validation error returned by Zod
+      properties:
+        message:
+          type: string
+          example: "Validation Failed"
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: string
+                example: "email"
+              message:
+                type: string
+                example: "Invalid Email Format"
+
+    ErrorResponse:
+      type: object
+      description: Standard error response format for failed API requests
+      properties:
+        status:
+          type: string
+          example: "fail 500"
+        message:
+          type: string
+          example: "Something went wrong on the server"
