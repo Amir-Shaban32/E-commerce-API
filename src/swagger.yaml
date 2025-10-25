@@ -33,7 +33,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   data:
                     $ref: '#/components/schemas/Users'
         "400":
@@ -73,7 +73,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   data:
                     $ref: '#/components/schemas/Users'
                   accessToken:
@@ -131,7 +131,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   data:
                     $ref: '#/components/schemas/Users'
                   accessToken:
@@ -186,9 +186,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
-                  data:
-                    $ref: '#/components/schemas/Users'
+                    example: "success"
                   accessToken:
                     type: string
                     description: New JWT access token
@@ -239,7 +237,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   length:
                     type: integer
                   data:
@@ -279,7 +277,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   data:
                     $ref: '#/components/schemas/Users'
         "400":
@@ -318,7 +316,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
         "400":
@@ -352,7 +350,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
                   data:
@@ -409,7 +407,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   length:
                     type: integer
                   data:
@@ -445,7 +443,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
                   data:
@@ -490,7 +488,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   data:
                     $ref: '#/components/schemas/Products'
         "400":
@@ -533,7 +531,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   data:
                     $ref: '#/components/schemas/Products'
         "400":
@@ -576,7 +574,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
         "400":
@@ -629,7 +627,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   length:
                     type: integer
                   data:
@@ -665,7 +663,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
                   data:
@@ -710,7 +708,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   data:
                     $ref: '#/components/schemas/Categories'
         "400":
@@ -753,7 +751,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   data:
                     $ref: '#/components/schemas/Categories'
         "400":
@@ -796,7 +794,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
         "400":
@@ -830,7 +828,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   data:
                     $ref: '#/components/schemas/Cart'
         "403":
@@ -864,7 +862,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
                   data:
@@ -898,7 +896,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
         "403":
@@ -936,7 +934,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
                   data:
@@ -978,7 +976,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
                   data:
@@ -1057,7 +1055,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   length:
                     type: integer
                   data:
@@ -1095,7 +1093,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   data:
                     $ref: '#/components/schemas/Orders'
         "403":
@@ -1137,7 +1135,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
                   data:
@@ -1161,7 +1159,7 @@ paths:
 
   /api/orders/{orderId}/status:
     patch:
-      description: Update User's order shipping status
+      summary: Update User's order shipping status
       description: Update the status of a specific user order, such as processing, shipped, or delivered.
       parameters:
         - in: path
@@ -1189,7 +1187,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
                   data:
@@ -1248,7 +1246,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
                   data:
@@ -1297,7 +1295,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
                   data:
@@ -1349,7 +1347,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
                   data:
@@ -1391,7 +1389,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
                   data:
@@ -1447,7 +1445,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   message:
                     type: string
         "400":
@@ -1481,7 +1479,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   data:
                     type: array
                     description: List of orders with their delivery statuses
@@ -1527,7 +1525,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   data:
                     $ref: '#/components/schemas/Orders'
         "404":
@@ -1645,7 +1643,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   paymentIntentId:
                     type: string
                     description: Unique identifier of the Stripe payment intent
@@ -1691,7 +1689,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   payment:
                     $ref: '#/components/schemas/Payments'
         "400":
@@ -1731,7 +1729,7 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: "ok 200"
+                    example: "success"
                   payment:
                     $ref: '#/components/schemas/Payments'
         "400":
@@ -1909,11 +1907,6 @@ components:
       example:
         username: "Amir"
         password: "DAejk%67"
-        shipping_address:
-          - country: "Syria"
-            city: "Damascus"
-            street: "Via Recta"
-            zip: "65438"
 
     Products:
       type: object
@@ -2206,7 +2199,7 @@ components:
       properties:
         status:
           type: string
-          example: "fail 500"
+          example: "fail"
         message:
           type: string
           example: "Something went wrong on the server"
