@@ -59,7 +59,7 @@ cp .env.example .env
 # Server & Database
 PORT=3000
 NODE_ENV=development
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/ecommerce
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/ecommerce
 
 # JWT Secrets (use strong random strings)
 ACCESS_SECRET_KEY=your_super_secure_access_secret_key
@@ -67,7 +67,7 @@ REFRESH_SECRET_KEY=your_super_secure_refresh_secret_key
 
 # Stripe Payment
 STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
-STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+WEBHOOK_SECRET_KEY=whsec_your_webhook_secret
 
 # Google OAuth
 GOOGLE_CLIENT_ID=your_google_client_id
@@ -161,6 +161,6 @@ stripe trigger payment_intent.payment_failed
 
 **⭐ Star this repo if you find it helpful!**
 
-Madeby Amir Shaban
+Made by Amir Shaban
 
 </div>
