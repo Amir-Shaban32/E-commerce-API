@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    /* File Layout */
+    "rootDir": "./src",
+    "outDir": "./dist",
+    /* Environment Settings */
+    "module": "esnext",           
+    "moduleResolution": "node", 
+    "target": "es2020",
+    "types": ["node","express"],
+    "typeRoots": ["./src/types" , "./node_modules/@types"],
+    /* Outputs */
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    /* Type Checking */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    /* Compatibility */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules","dist"]
+}
