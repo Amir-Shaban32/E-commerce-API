@@ -19,9 +19,10 @@ export const deleteUserService = async(id:string)
         await session.commitTransaction();
         return {status:200 , message:"User deleted successfully"};
 
-    }catch(error:any){
+    }catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         await session.abortTransaction();
-        throw new Error(error.message || "Failed to delete user");
+        throw new Error(err.message || "Failed to delete user");
     }finally{
         await session.endSession();
     }

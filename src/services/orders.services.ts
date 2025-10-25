@@ -286,10 +286,11 @@ const handleRefund = async (order: IOrder)
       status: 200,
       message: "Order refunded successfully"
     };
-  } catch (error: any) {    
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
     return {
       status: 500,
-      message: `Refund failed: ${error.message}`
+      message: `Refund failed: ${err.message}`
     };
   }
 };

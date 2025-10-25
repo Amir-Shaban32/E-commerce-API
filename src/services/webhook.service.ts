@@ -22,8 +22,9 @@ export const verifyWebhookSig = (
             WEBHOOK_SECRET_KEY
         );
         return {verified:true , event};
-    }catch(error:any){
-        return {verified:false , error:error.message};
+    }catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        return {verified:false , error:err.message};
     }
 
 };
@@ -60,8 +61,9 @@ export const handlePaymentIntentSucceeded = async (paymentIntent: Stripe.Payment
         });
         
         return {success:true, message:"payment processed successfully"};
-    }catch(error:any){
-        return {success:false , message:error.message};
+    }catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        return {success:false , message:err.message};
     }
 };
 
@@ -84,8 +86,9 @@ export const handlePaymentIntentFailed = async (paymentIntent: Stripe.PaymentInt
     
         return {success: true,message: 'Failed payment recorded'};
 
-    }catch(error:any){
-        return {success:false , message:error.message};
+    }catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        return {success:false , message:err.message};
     }
 };
 
@@ -121,8 +124,9 @@ export const handleChargeRefunded = async(charge:Stripe.Charge)
         });
 
         return {success:true , message:"Refund processed successfully"};
-    }catch(error:any){
-        return {success:false , message:error.message};
+    }catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
+        return {success:false , message:err.message};
     }
 
 };
@@ -148,8 +152,9 @@ export const webhookEvent = async (event:Stripe.Event)
             return { success: true, message: 'Event type not handled' };
     }
 
-  } catch (error: any) {
-    return {success:false , message:error.message};
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    return {success:false , message:err.message};
   }
 
 }
