@@ -30,16 +30,15 @@ export const getOrders = async (req:Request , res:Response)=>{
         const features = new ApiFeatures(ordersModel.find(filter).sort(sort), req.query).limitFields().paginate();
         const orders = await features.model.sort(sort);
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             length: orders.length,
             data: orders
         });
-    } catch (error: unknown) {
-    const err = error instanceof Error ? error : new Error(String(error));
- {
+    }catch (error: unknown) {
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
+            status: "fail",
+            message: err.message
         })
     };
 }
@@ -57,18 +56,17 @@ export const getOrder = async (req:Request , res:Response)=>{
         
         const foundOrder = await getOrderService(orderId,req.role , req.id);
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             data: foundOrder
         });        
 
     }catch (error: unknown) {
-    const err = error instanceof Error ? error : new Error(String(error));
-{
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })          
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 }
 
 // add order
@@ -97,17 +95,16 @@ export const checkOut = async (req:Request , res:Response) =>{
 
         await clearCartService(user_id);
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             data: order
         });
     }catch (error: unknown) {
-    const err = error instanceof Error ? error : new Error(String(error));
-{
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })          
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };
 
 // update existing Order
@@ -127,19 +124,18 @@ export const updateOrder = async (req:Request , res:Response) =>{
         if(foundOrder.status === 400) return res.status(400).json({ message: foundOrder.message });
         
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message:foundOrder.message,
             data: foundOrder.order
         });
 
     }catch (error: unknown) {
-    const err = error instanceof Error ? error : new Error(String(error));
-{
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        })           
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };
 
 //delete one Order
@@ -157,17 +153,16 @@ export const cancelOrderItem = async (req:Request , res:Response) =>{
         if(!checkOwnershipOrAdmin(foundOrder , req))  return res.status(403).json({message: "Forbidden"});
 
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message: "Item canceled successfully"
         });    
     }catch (error: unknown) {
-    const err = error instanceof Error ? error : new Error(String(error));
-{
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        });   
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };
 
 //delete existing Order
@@ -191,17 +186,16 @@ export const cancelOrder = async (req:Request , res:Response) =>{
         if(!foundOrder) return res.status(404).json({ message: "Order not found!" });
 
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message: "Order canceled successfully"
         });    
     }catch (error: unknown) {
-    const err = error instanceof Error ? error : new Error(String(error));
-{
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        });   
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };
 
 export const trackOrder = async (req:Request , res:Response) =>{
@@ -211,21 +205,19 @@ export const trackOrder = async (req:Request , res:Response) =>{
         if(!foundOrders) return res.status(404).json({ message: "Order not found!" });
     
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             data: foundOrders.map(order => ({
               orderId: order._id,
               status: order.delivery_status
             }))
           }); 
     }catch (error: unknown) {
-    const err = error instanceof Error ? error : new Error(String(error));
-{
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        });           
-    }
-
+            status: "fail",
+            message: err.message
+        })
+    };
 };
 
 export const updateTrack = async (req:Request , res:Response)=>{
@@ -249,18 +241,17 @@ export const updateTrack = async (req:Request , res:Response)=>{
         foundOrder.completed_at = new Date;
         await foundOrder.save();    
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message: `Order is ${foundOrder.delivery_status}`,
             data: foundOrder
         }); 
     }catch (error: unknown) {
-    const err = error instanceof Error ? error : new Error(String(error));
-{
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status: `fail ${res.statusCode}`,
-            message: error.message
-        });           
-    }   
+            status: "fail",
+            message: err.message
+        })
+    };  
 };
 
 export const requestReturn = async (req:Request , res:Response)=>{
@@ -278,19 +269,18 @@ export const requestReturn = async (req:Request , res:Response)=>{
             .json({message:returnedOrder.message});
 
         res.json({
-            status:`ok ${res.statusCode}`,
+            status: "success",
             message:returnedOrder.message,
             data:returnedOrder.order
         })
 
     }catch (error: unknown) {
-    const err = error instanceof Error ? error : new Error(String(error));
-{
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status:`fail ${res.statusCode}`,
-            message:error.message
-        });
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };
 
 export const handleReturnApproval = async(req:Request , res:Response)=>{
@@ -312,19 +302,18 @@ export const handleReturnApproval = async(req:Request , res:Response)=>{
         }
 
         return res.json({
-            status:`ok ${res.statusCode}`,
+            status: "success",
             message:order.message,
             data:order.order
         });
 
     }catch (error: unknown) {
-    const err = error instanceof Error ? error : new Error(String(error));
-{
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status:`fail ${res.statusCode}`,
-            message:error.message
-        });
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };
 
 export const completeReturn = async(req:Request , res:Response)=>{
@@ -345,17 +334,16 @@ export const completeReturn = async(req:Request , res:Response)=>{
         }
 
         return res.json({
-            status:`ok ${res.statusCode}`,
+            status: "success",
             message:order.message,
             order:order.order
         });
 
     }catch (error: unknown) {
-    const err = error instanceof Error ? error : new Error(String(error));
-{
+        const err = error instanceof Error ? error : new Error(String(error));
         res.status(500).json({
-            status:`fail ${res.statusCode}`,
-            message:error.message
-        });
-    }
+            status: "fail",
+            message: err.message
+        })
+    };
 };

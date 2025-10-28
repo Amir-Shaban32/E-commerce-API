@@ -68,7 +68,7 @@ export const handleLogIn = async <T extends Document & ILogIn>
     });
 
     return res.json({
-      status: `ok ${res.statusCode}`,
+      status: "success",
       data: user,
       accessToken:accessToken
     });

@@ -15,7 +15,7 @@ export const getCategories = async (req:Request , res:Response)=>{
         const features = new ApiFeatures(categoryModel.find() , req.query).filter().limitFields().paginate().sort();
         const categories = await features.model;
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             length: categories.length,
             data: categories
         });
@@ -38,7 +38,7 @@ export const getCategory = async (req:Request , res:Response)=>{
         if(category.status===404)    return res.status(404).json({message:category.message});
 
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             data: category
         });        
 
@@ -71,7 +71,7 @@ export const addCategory = async (req:Request , res:Response) =>{
         }
 
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message:category.message,
             data: category
         });
@@ -104,7 +104,7 @@ export const updateCategory = async (req:Request , res:Response) =>{
         }
 
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message:foundCategory.message,
             data: foundCategory.category
         });
@@ -131,7 +131,7 @@ export const deleteCategory = async (req:Request , res:Response) =>{
 
         await deleteCategoryService(id);
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message: "Category deleted successfully"
         });
 

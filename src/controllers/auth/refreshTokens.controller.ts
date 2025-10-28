@@ -56,17 +56,17 @@ export const handleRefreshToken = async (req:Request , res:Response)=>{
                      { httpOnly: true, secure: true, sameSite: 'none', maxAge: 24 * 60 * 60 * 1000 });
 
                 res.json({
-                status: `ok ${res.statusCode}`,
+                status: "success",
                 data: foundUser,
                 accessToken:accessToken
                 });
             });
 
     } catch (error: unknown) {
-    const err = error instanceof Error ? error : new Error(String(error));
-    res.status(500).json({
-      status: "fail",
-      message: err.message
-    });
-  }
+        const err = error instanceof Error ? error : new Error(String(error));
+        res.status(500).json({
+        status: "fail",
+        message: err.message
+        });
+    }
 }

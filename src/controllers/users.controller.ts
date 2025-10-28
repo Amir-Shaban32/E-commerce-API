@@ -13,7 +13,7 @@ export const getUsers = async (req:Request , res:Response)=>{
         const features = new ApiFeatures(userModel.find() , req.query).filter().limitFields().paginate().sort();
         const users = await features.model;
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             length: users.length,
             data: users
         });
@@ -38,7 +38,7 @@ export const getUser = async (req:Request , res:Response)=>{
         if(!checkOwnershipOrAdmin(user , req))  return res.status(403).json({ message: "Forbidden" });
         
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             data: user
         });        
 
@@ -79,7 +79,7 @@ export const updateUser = async (req:Request , res:Response) =>{
         }
 
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message:foundUser.message,
             data: foundUser.user
         });
@@ -114,7 +114,7 @@ export const deleteUser = async (req:Request , res:Response) =>{
         } 
         
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message: deletedUser.message
         });
 

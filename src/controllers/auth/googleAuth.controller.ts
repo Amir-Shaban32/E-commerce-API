@@ -60,7 +60,7 @@ export const handleCallback = async(req:Request , res:Response) =>{
         });
 
         return res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             accessToken:accessToken
         });
     }catch (error: unknown) {

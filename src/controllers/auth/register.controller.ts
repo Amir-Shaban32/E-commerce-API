@@ -54,17 +54,17 @@ export const handleRegister = async <T extends Document & IRegister>
       await session.commitTransaction();
       
       res.status(201).json({
-        status: `ok ${res.statusCode}`,
+        status: "success",
         data: user[0]
       });
       
     } catch (error: unknown) {
-      const err = error instanceof Error ? error : new Error(String(error));
-      await session.abortTransaction();
-      res.status(500).json({
-        status: `fail ${res.statusCode}`,
-        message: err.message
-      });
+        const err = error instanceof Error ? error : new Error(String(error));
+        await session.abortTransaction();
+        res.status(500).json({
+          status: "fail",
+          message: err.message
+        });
     } finally {
       await session.endSession();
     }

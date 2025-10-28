@@ -27,7 +27,7 @@ export const getPayment = async (req: Request, res: Response) => {
       return res.status(404).json({ message: payment.message });
 
     return res.json({
-      status: `ok ${res.statusCode}`,
+      status: "success",
       payment,
     });
   } catch (error: unknown) {
@@ -57,7 +57,7 @@ export const getPaymentByOrderId = async (req: Request, res: Response) => {
       return res.status(404).json({ message: payment.message });
 
     return res.json({
-      status: `ok ${res.statusCode}`,
+      status: "success",
       payment,
     });
   } catch (error: unknown) {
@@ -109,7 +109,7 @@ export const createPayment = async (req: Request, res: Response) => {
     await savePayment(user_id, order_id, paymentIntent);
 
     return res.json({
-      status: `ok ${res.statusCode}`,
+      status: "success",
       paymentIntentId: paymentIntent.id,
       clientSecret: paymentIntent.client_secret,
     });

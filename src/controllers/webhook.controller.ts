@@ -24,7 +24,7 @@ export const stripeWebhook = async (req: Request, res: Response) => {
         console.error(processingResult.message);
 
     return res.json({
-      status:`ok ${res.statusCode}`,
+      status: "success",
       received:true,
       message:processingResult.message
     });

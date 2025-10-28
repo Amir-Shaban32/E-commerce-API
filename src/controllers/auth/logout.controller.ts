@@ -17,13 +17,13 @@ export const handleLogout = async (req:Request , res:Response) =>{
         await foundUser.save();
 
         res.clearCookie('token', { httpOnly: true, sameSite: "none", secure: true });
-        res.status(200).json({ status: "ok", message: "Logged out" });
+        res.status(200).json({ status: "success", message: "Logged out" });
         
     } catch (error: unknown) {
-    const err = error instanceof Error ? error : new Error(String(error));
-    res.status(500).json({
-      status: "fail",
-      message: err.message
-    });
+      const err = error instanceof Error ? error : new Error(String(error));
+      res.status(500).json({
+        status: "fail",
+        message: err.message
+      });
   }
 }

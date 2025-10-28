@@ -10,7 +10,7 @@ export const getCart = async (req:Request , res:Response)=>{
         const cart = await cartModel.findOne({user_id});
         if(!checkOwnershipOrAdmin(cart , req))  return res.status(403).json({ message: "Forbidden" });
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             data: cart
         });        
 
@@ -37,7 +37,7 @@ export const updateItem = async (req:Request , res:Response) =>{
         if(!checkOwnershipOrAdmin(foundCart.cart , req))  return res.status(403).json({ message: "Forbidden" });
 
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message:foundCart.message,
             data: foundCart.cart
         });
@@ -62,7 +62,7 @@ export const addItem = async (req:Request , res:Response)=>{
         if(!checkOwnershipOrAdmin(foundCart.cart , req))  return res.status(403).json({message: "Forbidden"});
         
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message: foundCart.message,
             data: foundCart.cart
           });
@@ -86,7 +86,7 @@ export const deleteItem = async (req:Request , res:Response) =>{
         if(!checkOwnershipOrAdmin(foundCart.cart , req))  return res.status(403).json({message: "Forbidden"});
 
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message: foundCart.message,
             data: foundCart.cart
         });    
@@ -107,7 +107,7 @@ export const clearCart = async (req:Request , res:Response)=>{
         if(!checkOwnershipOrAdmin(foundCart.cart , req))  return res.status(403).json({ message: "Forbidden" });
         
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message: foundCart.message
         });        
 

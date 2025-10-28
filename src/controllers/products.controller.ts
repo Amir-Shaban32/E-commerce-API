@@ -15,7 +15,7 @@ export const getProducts = async (req:Request , res:Response)=>{
         const features = new ApiFeatures(productModel.find() , req.query).filter().limitFields().paginate().sort();
         const products = await features.model;
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             length: products.length,
             data: products
         });
@@ -38,7 +38,7 @@ export const getProduct = async (req:Request , res:Response)=>{
         if(product.status===404)    return res.status(404).json({message:product.message});
 
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             data: product
         });        
 
@@ -70,7 +70,7 @@ export const addProduct = async (req:Request , res:Response) =>{
         }
 
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message:product.message,
             data: product
         });
@@ -109,7 +109,7 @@ export const updateProduct = async (req:Request , res:Response) =>{
         }
         
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message:foundProduct.message,
             data: foundProduct.product
         });
@@ -136,7 +136,7 @@ export const deleteProduct = async (req:Request , res:Response) =>{
         await deleteProductService(id);
 
         res.json({
-            status: `ok ${res.statusCode}`,
+            status: "success",
             message: "Product deleted successfully"
         });
 
