@@ -1,6 +1,4 @@
 import { Request,Response } from "express";
-import ApiFeatures from '../utils/apiFeatures'
-import categoryModel from "../models/category.model";
 import { checkOwnershipOrAdmin } from "../middlewares/checkOwner";
 import {
     getCategoriesServices,
