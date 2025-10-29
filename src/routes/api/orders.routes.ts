@@ -21,8 +21,8 @@ const router: Router = Router();
 router.use(authenticationMiddleware);
 
 // ========== USER ROUTES (No role verification) ==========
-router.post("/checkout", checkOut);
-router.get("/status", trackOrder); 
+router.post("/:orderId/checkout", checkOut);
+router.get("/:orderId/status", trackOrder); 
 
 // ========== ADMIN ROUTES ==========
 router.get("/", verifyRoles(ROLES_LIST.admin), getOrders); 

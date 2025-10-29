@@ -1461,10 +1461,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/orders/status:
+  /api/orders/{orderId}/status:
     get:
       summary: User track his/her order shipping status 
       description: Retrieve the current status and details of a specific order for the authenticated user.
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string      
       tags:
         - Orders
       security:
@@ -1501,10 +1507,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/orders/checkout:
+  /api/orders/{orderId}/checkout:
     post:
       summary: User checkout his/her order
       description: Complete the checkout process for the user's cart and create a new order.
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
