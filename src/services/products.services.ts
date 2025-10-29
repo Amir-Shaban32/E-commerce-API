@@ -1,7 +1,20 @@
 import{z} from 'zod';
+import { Request } from 'express';
 import productModel from "../models/products.model";
 import {updateProductValidation , createProductsValidation} from "../validation/products.validation";
+import ApiFeatures from '../utils/apiFeatures';
+import { checkOwnershipOrAdmin } from '../middlewares/checkOwner';
 
+export const getProductsServices = (query: any) => {
+
+  const features = new ApiFeatures(productModel.find() , query)
+    .filter()
+    .limitFields()
+    .paginate()
+    .sort();
+
+  return features;
+};
 
 export const getProductService = async(id:string)
     :Promise<{status:number , message?:string , product?:typeof productModel.prototype}>=>{
@@ -14,15 +27,18 @@ export const getProductService = async(id:string)
 
 
 export const addProductService = async(newProduct:any)
-:Promise<{success:boolean , message?:any , product?:typeof productModel.prototype}> =>{
+:Promise<{status:number , message?:any , product?:typeof productModel.prototype}> =>{
     
+    const dublicatProduct = await productModel.findOne({name:newProduct.name});
+    if(dublicatProduct)   return {status:409,message:'Product already exists!'};
+
     const valid = createProductsValidation.safeParse(newProduct);
     if (!valid.success) {
-        return {success: false,message: z.treeifyError(valid.error)};
+        return {status: 400,message: z.treeifyError(valid.error)};
     }
     
     const product = await productModel.create({...valid.data});
-    return {success: true,message: "Product added successfully" , product:product};
+    return {status: 200,message: "Product added successfully" , product:product};
     
 };
 
@@ -46,11 +62,14 @@ export const updatedProductService = async(id:string , updated:any)
 };
 
 
-export const deleteProductService = async(id:string)
+export const deleteProductService = async(id:string,req:Request)
     :Promise<{status:number , message?:string }>=>{
 
-        await productModel.findByIdAndDelete(id);
+    const foundProduct = await productModel.findById(id);
+    if(!foundProduct) return {status: 404,message: "Product not found!"};
+    if(!checkOwnershipOrAdmin(foundProduct , req))  return {status:403 , message: "Forbidden" };
 
+    await productModel.findByIdAndDelete(id);
 
     return {status:200};
 };

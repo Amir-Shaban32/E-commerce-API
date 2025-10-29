@@ -1,7 +1,21 @@
 import{z} from 'zod';
 import categoriesModel from '../models/category.model';
 import { categoryValidation } from '../validation/categories.validation';
+import ApiFeatures from '../utils/apiFeatures';
+import { checkOwnershipOrAdmin } from '../middlewares/checkOwner';
+import { Request } from 'express';
 
+
+export const getCategoriesServices = (query: any) => {
+
+  const features = new ApiFeatures(categoriesModel.find() , query)
+    .filter()
+    .limitFields()
+    .paginate()
+    .sort();
+
+  return features;
+};
 
 export const getCategoryService = async(id:string)
     :Promise<{status:number , message?:string , category?:typeof categoriesModel.prototype}>=>{
@@ -12,6 +26,21 @@ export const getCategoryService = async(id:string)
     return {status:200, category:foundProduct};
 };
 
+export const addCategoryService = async(newCategory:any)
+:Promise<{status:number , message?:any , category?:typeof categoriesModel.prototype}> =>{
+    
+    const dublicatCategory = await categoriesModel.findOne({name:newCategory.name});
+    if(dublicatCategory)   return {status:409,message:'Category already exists!'};
+
+    const valid = categoryValidation.safeParse(newCategory);
+    if (!valid.success) {
+        return {status: 400,message: z.treeifyError(valid.error)};
+    }
+    
+    const category = await categoriesModel.create({...valid.data});
+    return {status: 200,message: "Category added successfully" , category};
+    
+};
 
 export const updatedCategoryService = async(id:string , updated:any)
     :Promise<{status:number , message:any , category?:typeof categoriesModel.prototype}>=>{
@@ -32,25 +61,16 @@ export const updatedCategoryService = async(id:string , updated:any)
     return {status:200 , message:"Category updated successfully" , category:updatedCategory};
 };
 
-export const addCategoryService = async(newCategory:any)
-    :Promise<{success:boolean , message?:any , category?:typeof categoriesModel.prototype}> =>{
-
-        const valid = categoryValidation.safeParse(newCategory);
-        if (!valid.success) {
-            return {success: false,message: z.treeifyError(valid.error)};
-        }
-
-        const category = await categoriesModel.create({...valid.data});
-        return {success: true,message: "Category added successfully" , category:category};
-
-};
 
 
-export const deleteCategoryService = async(id:string)
+export const deleteCategoryService = async(id:string,req:Request)
     :Promise<{status:number , message?:string }>=>{
 
-        await categoriesModel.findByIdAndDelete(id);
+    const foundCategory = await categoriesModel.findById(id);
+    if(!foundCategory) return {status: 404,message: "Category not found!"};
+    if(!checkOwnershipOrAdmin(foundCategory , req))  return {status:403 , message: "Forbidden" };
 
+    await categoriesModel.findByIdAndDelete(id);
 
     return {status:200};
 };

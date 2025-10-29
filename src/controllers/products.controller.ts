@@ -1,8 +1,7 @@
 import { Request,Response } from "express";
-import ApiFeatures from '../utils/apiFeatures'
-import productModel from "../models/products.model";
 import {checkOwnershipOrAdmin} from '../middlewares/checkOwner';
 import {
+    getProductsServices,
     getProductService,
     updatedProductService, 
     addProductService, 
@@ -12,7 +11,7 @@ import {
 //get all products
 export const getProducts = async (req:Request , res:Response)=>{
     try{
-        const features = new ApiFeatures(productModel.find() , req.query).filter().limitFields().paginate().sort();
+        const features = getProductsServices(req.query);
         const products = await features.model;
         res.json({
             status: "success",
@@ -57,12 +56,11 @@ export const addProduct = async (req:Request , res:Response) =>{
         const newProduct = req.body;
         if(!newProduct) return res.status(400).json({message:"Missing Product's details"});
 
-        const dublicatProduct = await productModel.findOne({name:newProduct.name});
-        if(dublicatProduct)   return res.status(409).json({message:'Product already exists!'});
-        if(!checkOwnershipOrAdmin(dublicatProduct , req))  return res.status(403).json({ message: "Forbidden" });
-
         const product = await addProductService(req.body);
-        if (!product.success) {
+        if(product.status===409)   return res.status(409).json({message:'Product already exists!'});
+        if(!checkOwnershipOrAdmin(product.product , req))  return res.status(403).json({ message: "Forbidden" });
+
+        if (product.status===400) {
             return res.status(400).json({
                 status: "fail",
                 message: product.message
@@ -89,29 +87,26 @@ export const updateProduct = async (req:Request , res:Response) =>{
         const id = req.params.id;
         if(!id) return res.status(400).json({message:"Missing Prdouct Id!"});
         
-        const product = await productModel.findById(id);
-        if(!checkOwnershipOrAdmin(product , req))  return res.status(403).json({ message: "Forbidden" });
+        const product = await updatedProductService(id , req.body);
+        if(!checkOwnershipOrAdmin(product.product , req))  return res.status(403).json({ message: "Forbidden" });
         
-        const foundProduct = await updatedProductService(id , req.body);
-        if(foundProduct.status === 404) return res.status(404).json({ message: foundProduct.message });
-        
-        if (foundProduct.status === 404) {
+        if (product.status === 404) {
             return res.status(404).json({
                 status: "fail",
-                message: foundProduct.message
+                message: product.message
             });
         }
-        if (foundProduct.status === 400) {
+        if (product.status === 400) {
             return res.status(400).json({
                 status: "fail",
-                message: foundProduct.message
+                message: product.message
             });
         }
         
         res.json({
             status: "success",
-            message:foundProduct.message,
-            data: foundProduct.product
+            message:product.message,
+            data: product.product
         });
 
     } catch (error: unknown) {
@@ -129,11 +124,9 @@ export const deleteProduct = async (req:Request , res:Response) =>{
         const id = req.params.id;
         if(!id) return res.status(400).json({message:"Missing Product Id!"});
 
-        const foundProduct = await productModel.findById(id);
-        if(!foundProduct) return res.status(404).json({message:"Product not found"});
-        if(!checkOwnershipOrAdmin(foundProduct , req))  return res.status(403).json({ message: "Forbidden" });
-
-        await deleteProductService(id);
+        const deletedProduct = await deleteProductService(id,req);
+        if(deletedProduct.status!==200) 
+            return res.status(deletedProduct.status).json({message:deletedProduct.message});
 
         res.json({
             status: "success",

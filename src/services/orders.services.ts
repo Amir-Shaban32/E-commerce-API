@@ -2,14 +2,21 @@ import ordersModel from "../models/orders.model";
 import {IOrder} from '../types/order.types';
 import userModel from "../models/users.model";
 import productsModel from "../models/products.model";
+import cartModel from "../models/cart.model";
 import { getPrice } from "../middlewares/getPrice";
 import { order_item } from "../types/order.types";
-import { cartItem } from "../types/cart.types";
 import { Types } from "mongoose";
 import { updateOrderValidation} from "../validation/orders.validation";
 import {z} from 'zod';
 import Stripe from "stripe";
 import { SortOrder } from "mongoose";
+import ApiFeatures from "../utils/apiFeatures";
+
+interface OrderRequest {
+  shipping_address: string;
+  payment_status: string;
+  phone_number: string;
+}
 
 export const getOrdersServices = (query: any) => {
   const filter: any = { ...query };
@@ -38,7 +45,9 @@ export const getOrdersServices = (query: any) => {
 
   delete filter.sort_by;
 
-  return { filter, sort };
+  const features = new ApiFeatures(ordersModel.find(filter).sort(sort),query).limitFields().paginate();
+
+  return features;
 };
 
 export const getOrderService = async (orderId:string , role:number , user_id:string) =>{
@@ -50,7 +59,7 @@ export const getOrderService = async (orderId:string , role:number , user_id:str
         query.delivery_status = {$ne:"canceled"} // to preven user get order he canceled it
     }
 
-    const foundOrder = await ordersModel.find(query);
+    const foundOrder = await ordersModel.findOne(query);
     if(!foundOrder) return null;
 
     return foundOrder;
@@ -134,10 +143,16 @@ export const cancelItemService = async ( user_id:string , product_id:string , ca
     return foundOrder;
 };
 
-export const checkoutService = async (user_id:string , items:cartItem[]) =>{
+export const checkoutService = async (user_id:string , order:OrderRequest) 
+  :Promise<{status:number , message?:string , order?: typeof ordersModel.prototype}>=>{
+    
     const foundUser = await userModel.findById(user_id);
-    if(!foundUser || !items) return null;
-
+    if(!foundUser) return {status:404 , message:"User not found!"};
+    const foundCart = await cartModel.findOne({user_id});
+    if(!foundCart) return {status:404 , message:"Cart is not found!"};
+    if(foundCart.items.length < 1) return {status:404,message: "Cart is empty"};
+    
+    const items = foundCart.items;
     const order_items = [] as order_item[];
     let total = 0;
 
@@ -156,9 +171,17 @@ export const checkoutService = async (user_id:string , items:cartItem[]) =>{
         total+=price * quantity;
     }
 
-    return {
-        order_items,
-        total};
+    const newOrder = await ordersModel.create({
+      user_id,
+      order_items,
+      shipping_address:order.shipping_address,
+      payment_status:order.payment_status,
+      phone_number:order.phone_number,
+      delivery_status:"pending",
+      total
+    });
+
+    return {status:200,message:"Order in way" , order: newOrder};
 }
 
 export const updateOrderService = async(

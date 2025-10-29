@@ -3,6 +3,7 @@ import ApiFeatures from '../utils/apiFeatures'
 import categoryModel from "../models/category.model";
 import { checkOwnershipOrAdmin } from "../middlewares/checkOwner";
 import {
+    getCategoriesServices,
     getCategoryService,
     addCategoryService, 
     updatedCategoryService,
@@ -12,8 +13,9 @@ import {
 //get all Categories
 export const getCategories = async (req:Request , res:Response)=>{
     try{
-        const features = new ApiFeatures(categoryModel.find() , req.query).filter().limitFields().paginate().sort();
+        const features = getCategoriesServices(req.query);
         const categories = await features.model;
+
         res.json({
             status: "success",
             length: categories.length,
@@ -58,12 +60,11 @@ export const addCategory = async (req:Request , res:Response) =>{
         const newCategory = req.body;
         if(!newCategory) return res.status(400).json({message:"Missing category details"});
 
-        const dublicateCategory = await categoryModel.findOne({name:newCategory.name});
-        if(dublicateCategory)   return res.status(409).json({message:'Category already exists!'});
-        if(!checkOwnershipOrAdmin(dublicateCategory , req))  return res.status(403).json({ message: "Forbidden" });
-
         const category = await addCategoryService(newCategory);
-        if (!category.success) {
+        if(category.status===409)   return res.status(409).json({message:'Category already exists!'});
+        if(!checkOwnershipOrAdmin(category.category , req))  return res.status(403).json({ message: "Forbidden" });
+
+        if (category.status === 400) {
             return res.status(400).json({
                 status: "fail",
                 message: category.message
@@ -90,23 +91,21 @@ export const updateCategory = async (req:Request , res:Response) =>{
         const id = req.params.id;
         if(!id) return res.status(400).json({message:"Missing Id!"});
         
-        const product = await categoryModel.findById(id);
+        const product = await updatedCategoryService(id,req.body);
         if(!checkOwnershipOrAdmin(product , req))  return res.status(403).json({ message: "Forbidden" });
-        
-        const foundCategory = await updatedCategoryService(id,req.body);
-        if(foundCategory.status === 404) return res.status(404).json({ message: foundCategory.message });
+        if(product.status === 404) return res.status(404).json({ message: product.message });
 
-        if (foundCategory.status === 400) {
+        if (product.status === 400) {
             return res.status(400).json({
                 status: "fail",
-                message: foundCategory.message
+                message: product.message
             });
         }
 
         res.json({
             status: "success",
-            message:foundCategory.message,
-            data: foundCategory.category
+            message:product.message,
+            data: product.category
         });
 
     } catch (error: unknown) {
@@ -125,11 +124,9 @@ export const deleteCategory = async (req:Request , res:Response) =>{
         const id = req.params.id;
         if(!id) return res.status(400).json({message:"Missing Category Id!"});
 
-        const Category = await categoryModel.findById(id);
-        if(!Category) return res.status(404).json({ message: "Category not found!" });
-        if(!checkOwnershipOrAdmin(Category , req))  return res.status(403).json({ message: "Forbidden" });
-
-        await deleteCategoryService(id);
+        const deletedCategory = await deleteCategoryService(id , req);
+        if(deletedCategory.status === 404) return res.status(404).json({ message: "Category not found!" });
+        
         res.json({
             status: "success",
             message: "Category deleted successfully"
