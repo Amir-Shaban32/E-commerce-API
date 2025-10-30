@@ -2,7 +2,29 @@ import userModel from "../models/users.model";
 import mongoose from "mongoose";
 import cartModel from "../models/cart.model";
 import { updateUserValidation } from "../validation/user.validation";
+import ApiFeatures from "../utils/apiFeatures";
 import z from "zod";
+
+
+export const getUsersServices = (query: any) => {
+
+  const features = new ApiFeatures(userModel.find() , query)
+    .filter()
+    .limitFields()
+    .paginate()
+    .sort();
+
+  return features;
+};
+
+export const getUserService = async(id:string)
+    :Promise<{status:number , message?:string , user?:typeof userModel.prototype}>=>{
+
+    const foundProduct = await userModel.findById(id);
+    if(!foundProduct) return {status: 404,message: "User not found!"};
+
+    return {status:200, user:foundProduct};
+};
 
 export const deleteUserService = async(id:string)
 :Promise<{status:number , message?:any }>=>{

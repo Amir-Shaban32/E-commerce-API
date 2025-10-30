@@ -1,16 +1,19 @@
 import { Request,Response } from "express";
-import userModel from "../models/users.model";
 import { IUsers } from "../types/users.types";
 import { handleLogIn } from "../controllers/auth/login.controller";
 import { handleRegister } from "../controllers/auth/register.controller";
 import { checkOwnershipOrAdmin } from "../middlewares/checkOwner";
-import ApiFeatures from '../utils/apiFeatures';
-import { deleteUserService, updateUserService } from "../services/users.services";
+import {
+    getUsersServices,
+    deleteUserService,
+    getUserService, 
+    updateUserService 
+} from "../services/users.services";
 
 //get all users
 export const getUsers = async (req:Request , res:Response)=>{
     try{
-        const features = new ApiFeatures(userModel.find() , req.query).filter().limitFields().paginate().sort();
+        const features = getUsersServices(req.query);
         const users = await features.model;
         res.json({
             status: "success",
@@ -32,7 +35,7 @@ export const getUser = async (req:Request , res:Response)=>{
         const id = req.params.id;
         if(!id) return res.status(400).json({message:"Missing user Id!"});
 
-        const user = await userModel.findById(id);
+        const user = await getUserService(id);
         if (!user) return res.status(404).json({ message: "User not found!" });
 
         if(!checkOwnershipOrAdmin(user , req))  return res.status(403).json({ message: "Forbidden" });
@@ -67,16 +70,14 @@ export const updateUser = async (req:Request , res:Response) =>{
         const username = req.username;
         if(!username) return res.status(400).json({ message: "Missing username!" });
 
-        const user = await userModel.findOne({ username });
+        const user = await getUserService(req.id);
         if (!user) return res.status(404).json({ message: "User not found!" });
 
         if(!checkOwnershipOrAdmin(user , req))  return res.status(403).json({ message: "Forbidden" });
         
         const foundUser = await updateUserService(username, req.body);
-        if(foundUser.status === 404) return res.status(404).json({ message: foundUser.message });
-        if (foundUser.status === 400) {
-            return res.status(400).json({ message: foundUser.message });
-        }
+        if(foundUser.status !== 200) 
+            return res.status(foundUser.status).json({ message: foundUser.message });
 
         res.json({
             status: "success",
@@ -100,14 +101,14 @@ export const deleteUser = async (req:Request , res:Response) =>{
         const id = req.params.id;
         if(!id) return res.status(400).json({message:"Missing user Id!"});
 
-        const user = await userModel.findById(id);
-        if(!user) return res.status(400).json({message:"User not found!"});
-        // check if id comming from middleware is the same as id here
-        if(!checkOwnershipOrAdmin(user , req))  return res.status(403).json({ message: "Forbidden" });
-        
+        const user = await getUserService(req.id);
+        if (!user) return res.status(404).json({ message: "User not found!" });
+        if(!checkOwnershipOrAdmin(user , req))  
+            return res.status(403).json({ message: "Forbidden" });
+          
         const deletedUser = await deleteUserService(id);
-        if(deletedUser.status === 404){
-            return res.status(404).json({
+        if(deletedUser.status !== 200){
+            return res.status(deletedUser.status).json({
                 status:"fail",
                 message: deletedUser.message 
             });
