@@ -148,6 +148,7 @@ export const checkoutService = async (user_id:string , order:OrderRequest)
     
     const foundUser = await userModel.findById(user_id);
     if(!foundUser) return {status:404 , message:"User not found!"};
+
     const foundCart = await cartModel.findOne({user_id});
     if(!foundCart) return {status:404 , message:"Cart is not found!"};
     if(foundCart.items.length < 1) return {status:404,message: "Cart is empty"};
@@ -158,6 +159,14 @@ export const checkoutService = async (user_id:string , order:OrderRequest)
 
     for(const {product_id , quantity} of items)
     {
+        const product = await productsModel.findById(product_id);
+        if(!product) return {status:404 , message:"Product is not found!"};
+        if(quantity > product.stock_quantity) 
+          return { status: 409, message: "Insufficient stock available for the requested quantity." };
+        
+        product.stock_quantity -= quantity;
+        await product.save();
+
         const price =  await getPrice(new Types.ObjectId(product_id));
         const item:order_item = {
             product_id: new Types.ObjectId(product_id),

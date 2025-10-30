@@ -1,5 +1,6 @@
 import cartModel from "../models/cart.model.js";
 import { Types } from "mongoose";
+import productsModel from "../models/products.model.js";
 
 export const getCartService = async(user_id:string)=>{
     const cart = await cartModel.findOne({user_id});
@@ -31,14 +32,18 @@ export const addItemService = async (user_id: string,product_id: string,quantity
   : Promise<{ status: number; message?: string; cart?: typeof cartModel.prototype }> => {
     
     const foundCart = await cartModel.findOne({ user_id });
-    if (!foundCart) {
+    if (!foundCart) 
       return { status: 404, message: "Cart not found!" };
-    }
-  
+
     // Ensure product_id is valid
-    if (!Types.ObjectId.isValid(product_id)) {
+    if (!Types.ObjectId.isValid(product_id)) 
       return { status: 400, message: "Invalid Product Id!" };
-    }
+
+    if(quantity <= 0)
+        return {status:400 , message: "Quantity must be greater than zero."};
+
+    const product = await productsModel.findById(product_id);
+    if(!product) return {status:404 , message:"Product not found!"};
   
     // Look for existing item
     const existingItem = foundCart.items.find(
@@ -46,11 +51,20 @@ export const addItemService = async (user_id: string,product_id: string,quantity
     );
   
     if (existingItem) {
-      existingItem.quantity += quantity || 1;
+      const newQuantity = existingItem.quantity + quantity;
+
+      if(newQuantity > product.stock_quantity)
+        return { status: 409, message: "Insufficient stock available for the requested quantity." };
+
+      existingItem.quantity = newQuantity;
     } else {
+
+      if(quantity > product.stock_quantity)
+        return { status: 409, message: "Insufficient stock available for the requested quantity." };
+
       foundCart.items.push({
         product_id: new Types.ObjectId(product_id),
-        quantity: quantity || 1,
+        quantity
       });
     }
   
@@ -59,7 +73,6 @@ export const addItemService = async (user_id: string,product_id: string,quantity
     return { status: 200, message: "Item added successfully", cart: foundCart };
 };
   
-
 export const clearCartService = async(user_id:string , product_id?:string):
     Promise<{status: number , message?:string , cart ?: typeof cartModel.prototype}>=>{
     const foundCart= await cartModel.findOne({user_id});
