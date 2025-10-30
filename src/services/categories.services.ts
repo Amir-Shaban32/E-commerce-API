@@ -2,8 +2,6 @@ import{z} from 'zod';
 import categoriesModel from '../models/category.model';
 import { categoryValidation } from '../validation/categories.validation';
 import ApiFeatures from '../utils/apiFeatures';
-import { checkOwnershipOrAdmin } from '../middlewares/checkOwner';
-import { Request } from 'express';
 
 
 export const getCategoriesServices = (query: any) => {
@@ -63,12 +61,11 @@ export const updatedCategoryService = async(id:string , updated:any)
 
 
 
-export const deleteCategoryService = async(id:string,req:Request)
+export const deleteCategoryService = async(id:string)
     :Promise<{status:number , message?:string }>=>{
 
     const foundCategory = await categoriesModel.findById(id);
     if(!foundCategory) return {status: 404,message: "Category not found!"};
-    if(!checkOwnershipOrAdmin(foundCategory , req))  return {status:403 , message: "Forbidden" };
 
     await categoriesModel.findByIdAndDelete(id);
 

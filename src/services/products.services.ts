@@ -1,9 +1,7 @@
 import{z} from 'zod';
-import { Request } from 'express';
 import productModel from "../models/products.model";
 import {updateProductValidation , createProductsValidation} from "../validation/products.validation";
 import ApiFeatures from '../utils/apiFeatures';
-import { checkOwnershipOrAdmin } from '../middlewares/checkOwner';
 
 export const getProductsServices = (query: any) => {
 
@@ -62,12 +60,11 @@ export const updatedProductService = async(id:string , updated:any)
 };
 
 
-export const deleteProductService = async(id:string,req:Request)
+export const deleteProductService = async(id:string)
     :Promise<{status:number , message?:string }>=>{
 
     const foundProduct = await productModel.findById(id);
     if(!foundProduct) return {status: 404,message: "Product not found!"};
-    if(!checkOwnershipOrAdmin(foundProduct , req))  return {status:403 , message: "Forbidden" };
 
     await productModel.findByIdAndDelete(id);
 

@@ -122,7 +122,12 @@ export const deleteCategory = async (req:Request , res:Response) =>{
         const id = req.params.id;
         if(!id) return res.status(400).json({message:"Missing Category Id!"});
 
-        const deletedCategory = await deleteCategoryService(id , req);
+        const category = await getCategoryService(req.id);
+        if (!category) return res.status(404).json({ message: "Category not found!" });
+        if(!checkOwnershipOrAdmin(category , req))  
+            return res.status(403).json({ message: "Forbidden" });
+
+        const deletedCategory = await deleteCategoryService(id);
         if(deletedCategory.status === 404) return res.status(404).json({ message: "Category not found!" });
         
         res.json({

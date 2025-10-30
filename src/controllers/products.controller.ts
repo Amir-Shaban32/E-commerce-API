@@ -124,7 +124,12 @@ export const deleteProduct = async (req:Request , res:Response) =>{
         const id = req.params.id;
         if(!id) return res.status(400).json({message:"Missing Product Id!"});
 
-        const deletedProduct = await deleteProductService(id,req);
+        const user = await getProductService(id);
+        if (!user) return res.status(404).json({ message: "User not found!" });
+        if(!checkOwnershipOrAdmin(user , req))  
+            return res.status(403).json({ message: "Forbidden" });
+
+        const deletedProduct = await deleteProductService(id);
         if(deletedProduct.status!==200) 
             return res.status(deletedProduct.status).json({message:deletedProduct.message});
 
