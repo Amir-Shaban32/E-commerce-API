@@ -1157,58 +1157,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/orders/{orderId}/status:
-    patch:
-      summary: Update User's order shipping status
-      description: Update the status of a specific user order, such as processing, shipped, or delivered.
-      parameters:
-        - in: path
-          name: orderId
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Orders'
-      tags:
-        - Orders
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Successfully updated User's order status
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: "success"
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Orders'
-        "403":
-          description: Forbidden
-        "400":
-          description: Bad request (Missing Order details)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-        "404":
-          description: Order not found
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
   /api/orders/{orderId}/cancel:
     patch:
       summary: Cancel User's order
@@ -1498,6 +1446,56 @@ paths:
                           type: string
         "403":
           description: Forbidden
+        "404":
+          description: Order not found
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      summary: Update User's order shipping status
+      description: Update the status of a specific user order, such as processing, shipped, or delivered.
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Orders'
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully updated User's order status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Orders'
+        "403":
+          description: Forbidden
+        "400":
+          description: Bad request (Missing Order details)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
         "404":
           description: Order not found
         "500":
